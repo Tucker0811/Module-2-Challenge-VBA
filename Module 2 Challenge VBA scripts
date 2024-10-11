@@ -1,0 +1,103 @@
+Attribute VB_Name = "Module1"
+Sub mult_year_stock()
+
+
+Dim ws As Worksheet
+Dim lastrow As Long
+
+
+For Each ws In ThisWorkbook.Worksheets
+ws.Activate
+
+
+ws.Cells(1, "I") = "Ticker"
+ws.Cells(1, "J") = "Quarterly Change"
+ws.Cells(1, "K") = "Percent Change"
+ws.Cells(1, "L") = "Total Stock Volume"
+ws.Cells(2, "O") = "Greatest % Increase"
+ws.Cells(3, "O") = "Greatest % Decrease"
+ws.Cells(4, "O") = "Greatest Total Volume"
+ws.Cells(1, "P") = "Ticker"
+ws.Cells(1, "Q") = "Value"
+
+maxpercent = Application.WorksheetFunction.Max(Range("K2:K1501"))
+minpercent = Application.WorksheetFunction.Min(Range("K2:K1501"))
+maxvolume = Application.WorksheetFunction.Max(Range("L2:L1501"))
+ws.Cells(2, "Q") = maxpercent
+ws.Cells(3, "Q") = minpercent
+ws.Cells(4, "Q") = maxvolume
+
+For R = 2 To 1501
+    If ws.Cells(R, "K") = maxpercent Then
+    ws.Cells(2, "P") = ws.Cells(R, "I")
+   End If
+   
+    If ws.Cells(R, "K") = minpercent Then
+    ws.Cells(3, "P") = ws.Cells(R, "I")
+    End If
+    
+    
+    If ws.Cells(R, "L") = maxvolume Then
+    ws.Cells(4, "P") = ws.Cells(R, "I")
+  
+  End If
+  
+  Next R
+
+
+Dim tickertable As Long
+Dim ticker As String
+Dim lprice As Double
+Dim fprice As Double
+Dim change As Double
+Dim percentchange As Double
+
+ws.Range("K2:K1501").NumberFormat = "0.00%"
+ws.Range("Q2:Q3").NumberFormat = "0.00%"
+ws.Range("Q4").NumberFormat = "000,000"
+ws.Range("L2:L1501").NumberFormat = "000,000"
+
+fprice = ws.Cells(2, "C")
+lprice = 0
+change = 0
+percentchange = 0
+tickertable = 2
+
+'lastrow = Cells(Rows.Count, "A").End(x1Up).Row - 1
+'Cells(2, "O") = lastrow
+
+For R = 2 To 93001
+
+If ws.Cells(R, 1) <> ws.Cells(R + 1, 1) Then
+ticker = ws.Cells(R, 1)
+ws.Cells(tickertable, "I") = ticker
+ws.Cells(tickertable, "L") = volume + ws.Cells(R, "G")
+volume = 0
+
+lprice = ws.Cells(R, "F")
+change = lprice - fprice
+If fprice <> 0 Then
+percentchange = change / fprice
+Else
+percentchange = 0
+End If
+
+ws.Cells(tickertable, "K") = percentchange
+fprice = ws.Cells(R + 1, "C")
+ws.Cells(tickertable, "J") = change
+
+tickertable = tickertable + 1
+Else
+volume = volume + ws.Cells(R, "G")
+
+End If
+
+
+Next R
+
+Next ws
+
+
+End Sub
+
+
